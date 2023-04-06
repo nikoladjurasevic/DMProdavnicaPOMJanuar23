@@ -8,7 +8,6 @@ public class AddToCartTests extends BaseTest{
         ChromeDriver driver = openChromeDriver();
         try {
             HomePage homePage = new HomePage(driver);
-//            homePage.acceptCookies();
             homePage.clickOnItemFromOrganskiProizvodi("Palenta");
 
             ItemPage itemPage = new ItemPage(driver);

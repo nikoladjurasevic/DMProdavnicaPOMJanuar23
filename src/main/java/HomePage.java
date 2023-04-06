@@ -2,9 +2,13 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class HomePage extends BasePage{
 
@@ -15,12 +19,41 @@ public class HomePage extends BasePage{
     @FindBy(xpath = "//div[@id='usercentrics-root']")
     WebElement cookieModal;
 
+    @FindBy(xpath = "//button[@data-dmid='layer-header-close-button']")
+    WebElement closePromotionButton;
+
+
 
     //konstruktor
     public HomePage(ChromeDriver driver) {
         super(driver);
         driver.get("https://www.dm.rs/");
         print("HomePage");
+        acceptCookies();
+        closePromotion();
+    }
+
+    public void acceptCookies() {
+        wait(20);
+        WebElement root = driver.findElement(By.xpath("//div[@id = 'usercentrics-root']"));
+        Object shadowRoot = ((JavascriptExecutor) driver).executeScript("return arguments[0].shadowRoot",  root);
+
+        Map<String, Object> shadowRootMap = (Map<String, Object>) shadowRoot;
+        String shadowRootKey = (String) shadowRootMap.keySet().toArray()[0];
+        String id = (String) shadowRootMap.get(shadowRootKey);
+        RemoteWebElement remoteWebElement = new RemoteWebElement();
+        remoteWebElement.setParent((RemoteWebDriver) driver);
+        remoteWebElement.setId(id);
+        WebElement returnObj = remoteWebElement;
+
+        WebElement acceptAllCookiesButton = returnObj.findElement(By.cssSelector("button[data-testid='uc-accept-all-button']"));
+        acceptAllCookiesButton.click();
+    }
+
+    public void closePromotion() {
+        print("closePromotion");
+        waitForElement(closePromotionButton);
+        closePromotionButton.click();
     }
 
     //metode nad webelementima
@@ -40,16 +73,6 @@ public class HomePage extends BasePage{
         }
 
 
-    }
-
-    public void acceptCookies() {
-        print("acceptCookies");
-//        waitForElement(cookieModal);
-        WebElement consent = driver.findElement(By.xpath("//*[@data-testid = 'uc-accept-all-button']"));
-        WebElement ele = (WebElement) ((JavascriptExecutor) driver)
-                .executeScript("return arguments[0].shadowRoot",consent);
-        ele.click();
-//        shadowContent.findElement(By.xpath("//*[@data-testid = 'uc-accept-all-button']")).click();
     }
 
 }
